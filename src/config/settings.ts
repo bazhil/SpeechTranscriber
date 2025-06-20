@@ -1,3 +1,4 @@
+
 export interface SaluteSpeechConfig {
   authKey: string;
   speechTokenUrl: string;
@@ -32,13 +33,14 @@ function getEnvVarAsInt(key: string, defaultValue?: number): number {
 
 
 export const saluteSpeechConfig: SaluteSpeechConfig = {
-  authKey: getEnvVar('SBER_AUTH_KEY'),
-  speechTokenUrl: getEnvVar('SBER_SPEECH_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
-  speechBaseUrl: getEnvVar('SBER_SPEECH_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
+  authKey: getEnvVar('SPEECH_AUTH_KEY'),
+  speechTokenUrl: getEnvVar('SPEECH_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
+  speechBaseUrl: getEnvVar('SPEECH_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
   scope: 'SALUTE_SPEECH_PERS',
-  retryAttempts: getEnvVarAsInt('SBER_RETRY_ATTEMPTS', 3),
-  retryTimeout: getEnvVarAsInt('SBER_RETRY_TIMEOUT', 1000), // 1 second
-  maxWaitTimeToken: getEnvVarAsInt('SBER_MAX_WAIT_TIME_TOKEN', 10000), // 10 seconds buffer for token expiry
-  recognitionPollingDelay: getEnvVarAsInt('SBER_RECOGNITION_POLLING_DELAY', 5000), // 5 seconds
+  retryAttempts: getEnvVarAsInt('RETRY_ATTEMPTS', 5),
+  // RETRY_TIMEOUT in .env is expected in seconds (e.g., 2 for 2 seconds). Default to 2 seconds.
+  retryTimeout: getEnvVarAsInt('RETRY_TIMEOUT', 2) * 1000, 
+  maxWaitTimeToken: getEnvVarAsInt('MAX_WAIT_TIME', 300000), // Default 300000ms (5 minutes)
+  recognitionPollingDelay: getEnvVarAsInt('RECOGNITION_POLLING_DELAY', 1000), // Default 1000ms (1 second)
   retryStatuses: [429, 500, 502, 503, 504], // Status codes to retry on
 };
