@@ -20,7 +20,6 @@ const AUDIO_ENCODINGS = [
   { value: 'PCM_S16LE', label: 'WAV / PCM S16LE (Requires Sample Rate & Channels)' },
   { value: 'OPUS', label: 'Opus' },
   { value: 'FLAC', label: 'FLAC' },
-  // Add more as needed based on Sber API support
 ];
 
 export default function TranscriberPage() {
@@ -47,7 +46,6 @@ export default function TranscriberPage() {
     if (selectedFile) {
       setFile(selectedFile);
       setSelectedFileName(selectedFile.name);
-      // Basic validation for file size (e.g., 1GB for Sber async)
       if (selectedFile.size > 1 * 1024 * 1024 * 1024) {
         toast({ title: "File too large", description: "Maximum file size is 1GB.", variant: "destructive" });
         setFile(null);
@@ -59,8 +57,6 @@ export default function TranscriberPage() {
   const resetState = () => {
     setFile(null);
     setSelectedFileName('');
-    // setEncoding(AUDIO_ENCODINGS[0].value); // Keep encoding choice
-    // setEnableSpeakerSeparation(true); // Keep speaker separation choice
     setIsLoading(false);
     setProgressMessage('');
     setCurrentProgress(0);
@@ -82,7 +78,7 @@ export default function TranscriberPage() {
     setIsLoading(true);
     setProgressMessage('Uploading file and initiating transcription...');
     setCurrentProgress(10);
-    setTranscriptionText(''); // Clear previous transcription
+    setTranscriptionText('');
 
     const formData = new FormData();
     formData.append('file', file);
@@ -118,7 +114,7 @@ export default function TranscriberPage() {
       startPolling(response.taskId);
     } else {
       toast({ title: 'Transcription Failed', description: response.error || 'Could not start transcription.', variant: 'destructive' });
-      resetState(); // Reset more comprehensively on failure
+      resetState();
     }
   };
 
@@ -155,21 +151,19 @@ export default function TranscriberPage() {
           toast({ title: 'Transcription Error', description: statusResponse.errorDetails || 'An error occurred during transcription.', variant: 'destructive' });
           setIsLoading(false);
           setProgressMessage(`Transcription error: ${statusResponse.errorDetails}`);
-          setCurrentProgress(0); // Reset progress on error
+          setCurrentProgress(0);
         }
       } else {
-        // Error fetching status
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         toast({ title: 'Status Check Failed', description: statusResponse.error || 'Could not check transcription status.', variant: 'destructive' });
         setIsLoading(false);
         setProgressMessage(`Error checking status: ${statusResponse.error}`);
         setCurrentProgress(0);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 5000);
   };
 
   React.useEffect(() => {
-    // Cleanup interval on component unmount
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
@@ -201,11 +195,11 @@ export default function TranscriberPage() {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 font-body">
       <header className="mb-8 text-center">
         <div className="flex items-center justify-center space-x-3 mb-4">
-          <Icons.SberLogo className="h-12 w-12 text-primary" />
-          <h1 className="text-4xl font-headline font-bold text-primary">Sber Transcriber</h1>
+          <Icons.Mic className="h-12 w-12 text-primary" />
+          <h1 className="text-4xl font-headline font-bold text-primary">Speech Transcriber</h1>
         </div>
         <p className="text-lg text-muted-foreground">
-          Upload your audio/video files and get high-quality transcriptions powered by Sber SalutSpeech.
+          Upload your audio/video files and get high-quality transcriptions powered by our Speech API.
         </p>
       </header>
 
@@ -318,8 +312,8 @@ export default function TranscriberPage() {
         </CardFooter>
       </Card>
       <footer className="text-center mt-12 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Sber Transcriber App. All rights reserved.</p>
-        <p>Powered by Next.js, ShadCN UI, and Sber SalutSpeech.</p>
+        <p>&copy; {new Date().getFullYear()} Speech Transcriber App. All rights reserved.</p>
+        <p>Powered by Next.js, ShadCN UI, and our Speech API.</p>
       </footer>
     </div>
   );

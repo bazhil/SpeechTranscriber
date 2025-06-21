@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Sber Transcriber',
-  description: 'Transcribe audio and video files with Sber SaluteSpeech API',
+  title: 'Speech Transcriber',
+  description: 'Transcribe audio and video files with our Speech API',
 };
 
 export default function RootLayout({
