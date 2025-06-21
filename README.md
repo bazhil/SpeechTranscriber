@@ -1,7 +1,10 @@
 # Speech Transcriber
 
 This is a NextJS app maded in Firebase Studio.
-This project is a web application that allows users to upload audio files and get a transcription of the audio using a speech-to-text service. It also provides the functionality to download the transcription as a text file.
+This project is a web application that allows users to upload audio files and get a transcription of the audio using a speech-to-text service.
+It also provides the functionality to download the transcription as a text file.
+
+![img.png](media/ui.png)
 
 ## Features
 
@@ -15,9 +18,9 @@ This project is a web application that allows users to upload audio files and ge
 To run this project locally, you will need Docker and Docker Compose installed.
 
 1.  **Clone the repository:**
-'''bash
+```bash
 git clonehttps://github.com/bazhil/SpeechTranscriber.git
-'''
+```
 
 2. **Fill .env:**
 ```bash
@@ -31,7 +34,8 @@ SPEECH_CLIENT_ID=
 RETRY_ATTEMPTS=5
 RETRY_TIMEOUT=2
 NODE_TLS_REJECT_UNAUTHORIZED=0
-'''
+```
+
 3. **Run project using docker:**
 ```bash
 docker compose up
@@ -40,4 +44,12 @@ or
 ```bash
 docker compose up --build
 ```
-if you have add some changes
+...if you have add some changes.
+
+For stop docker container use:
+```bash
+docker compose down
+```
+
+
+Project use MIT [LICENSE](LICENSE)

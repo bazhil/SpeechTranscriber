@@ -328,8 +328,8 @@ export default function TranscriberPage() {
         </CardFooter>
       </Card>
       <footer className="text-center mt-12 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Speech Transcriber App. All rights reserved.</p>
-        <p>Powered by Next.js, ShadCN UI, and our Speech API.</p>
+        <p>&copy; {new Date().getFullYear()} Speech Transcriber App.</p>
+        <p>Powered by Next.js, ShadCN UI, and SaluteSpeech API.</p>
       </footer>
     </div>
   );
