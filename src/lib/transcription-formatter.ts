@@ -13,13 +13,18 @@ export function formatResultToText(result: RecognitionResult, separateSpeakers: 
   }
 
   let fullText = "";
-  result.forEach((segment: RecognitionResultSegment, index) => {
-    let line = "";
-    if (separateSpeakers && segment.speaker_tag) {
-      line += `Speaker ${segment.speaker_tag}: `;
-    }
-    line += segment.normalized_text || segment.text || "";
-    fullText += line + "\n";
+  result.forEach((segment: RecognitionResultSegment, index: number) => {
+    if (segment.results && Array.isArray(segment.results)) {
+      segment.results.forEach((transcription, subIndex) => {
+        let line = "";
+        // Assuming speaker_tag is at the segment level, apply it once per segment
+        if (separateSpeakers && segment.speaker_info && segment.speaker_info.speaker_id !== undefined) {
+           line += `Speaker ${segment.speaker_info.speaker_id}: `;
+        }
+        line += transcription.normalized_text || transcription.text || "";
+        fullText += line + "\n";
+      });
+    } else { console.warn(`[FORMATTER] Segment ${index + 1} has no 'results' array or it's not an array.`); }
     console.log(`[FORMATTER] Processed segment ${index + 1}/${result.length}`);
   });
   
