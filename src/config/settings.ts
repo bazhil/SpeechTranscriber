@@ -33,9 +33,9 @@ function getEnvVarAsInt(key: string, defaultValue?: number): number {
 
 
 export const saluteSpeechConfig: SaluteSpeechConfig = {
-  authKey: getEnvVar('SPEECH_AUTH_KEY'),
-  speechTokenUrl: getEnvVar('SPEECH_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
-  speechBaseUrl: getEnvVar('SPEECH_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
+  authKey: getEnvVar('SBER_AUTH_KEY'),
+  speechTokenUrl: getEnvVar('SBER_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
+  speechBaseUrl: getEnvVar('SBER_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
   scope: 'SALUTE_SPEECH_PERS',
   retryAttempts: getEnvVarAsInt('RETRY_ATTEMPTS', 5),
   // RETRY_TIMEOUT in .env is expected in seconds (e.g., 2 for 2 seconds). Default to 2 seconds.

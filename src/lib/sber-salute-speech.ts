@@ -82,26 +82,39 @@ export class SaluteSpeechService {
   constructor() {
     this.sessionId = uuidv4();
     this.config = saluteSpeechConfig;
+    console.log(`[SBER_SERVICE] New instance created with Session ID: ${this.sessionId}`);
   }
 
   private async fetchWithRetry(url: string, options: RequestInit, attempt = 1): Promise<Response> {
     try {
+      console.log(`[SBER_SERVICE] Fetching ${url}, attempt ${attempt}...`);
       const response = await fetch(url, options);
       if (!response.ok && this.config.retryStatuses.includes(response.status) && attempt <= this.config.retryAttempts) {
-        await delay(this.config.retryTimeout * Math.pow(2, attempt - 1)); // Exponential backoff
+        const delayTime = this.config.retryTimeout * Math.pow(2, attempt - 1);
+        console.warn(`[SBER_SERVICE] Request to ${url} failed with status ${response.status}. Retrying in ${delayTime}ms... (Attempt ${attempt}/${this.config.retryAttempts})`);
+        await delay(delayTime); // Exponential backoff
         return this.fetchWithRetry(url, options, attempt + 1);
+      }
+      if(response.ok) {
+        console.log(`[SBER_SERVICE] Fetch successful for ${url} with status ${response.status}.`);
+      } else {
+        console.warn(`[SBER_SERVICE] Fetch for ${url} completed with non-retryable error status ${response.status}.`);
       }
       return response;
     } catch (error) {
       if (attempt <= this.config.retryAttempts) {
-        await delay(this.config.retryTimeout * Math.pow(2, attempt - 1));
+        const delayTime = this.config.retryTimeout * Math.pow(2, attempt - 1);
+        console.warn(`[SBER_SERVICE] Request to ${url} failed with error. Retrying in ${delayTime}ms... (Attempt ${attempt}/${this.config.retryAttempts})`, error);
+        await delay(delayTime);
         return this.fetchWithRetry(url, options, attempt + 1);
       }
+      console.error(`[SBER_SERVICE] Fetch failed for ${url} after ${this.config.retryAttempts} attempts.`, error);
       throw error;
     }
   }
   
   private async updateAccessToken(): Promise<void> {
+    console.log('[SBER_SERVICE] Updating access token...');
     const data = new URLSearchParams();
     data.append('scope', this.config.scope);
 
@@ -120,11 +133,13 @@ export class SaluteSpeechService {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      console.error('[SBER_SERVICE] Failed to update access token.', { status: response.status, body: errorBody });
       throw new Error(`Failed to update access token: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     
     const tokenData = await response.json();
     if (!tokenData.access_token) {
+        console.error('[SBER_SERVICE] Access token not found in response from token endpoint.');
         throw new Error('Access token not found in response');
     }
 
@@ -135,10 +150,12 @@ export class SaluteSpeechService {
         access_token: tokenData.access_token,
         expires_at: Date.now() + expiresInMs,
     };
+    console.log(`[SBER_SERVICE] Access token updated successfully. Expires at: ${new Date(this.token.expires_at).toISOString()}`);
   }
 
   private async getAccessToken(): Promise<string> {
     if (!this.token || this.token.expires_at < Date.now() + this.config.maxWaitTimeToken) {
+      console.log('[SBER_SERVICE] Access token is missing or expiring soon. Refreshing...');
       await this.updateAccessToken();
     }
     if (!this.token) { // Should be set by updateAccessToken
@@ -148,6 +165,7 @@ export class SaluteSpeechService {
   }
 
   async uploadFileForRecognition(fileBuffer: Buffer, contentType: string): Promise<UploadFileResponse> {
+    console.log(`[SBER_SERVICE] Uploading file for recognition. Content-Type: ${contentType}`);
     const accessToken = await this.getAccessToken();
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
@@ -163,9 +181,12 @@ export class SaluteSpeechService {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      console.error('[SBER_SERVICE] Failed to upload file.', { status: response.status, body: errorBody });
       throw new Error(`Failed to upload file: ${response.status} ${response.statusText} - ${errorBody}`);
     }
-    return response.json();
+    const jsonResponse = await response.json();
+    console.log(`[SBER_SERVICE] File upload successful. Request File ID: ${jsonResponse.result.request_file_id}`);
+    return jsonResponse;
   }
 
   async startRecognition(
@@ -176,6 +197,7 @@ export class SaluteSpeechService {
     enableSpeakerSeparation: boolean = true,
     hints?: any
     ): Promise<StartRecognitionResponse> {
+    console.log(`[SBER_SERVICE] Starting recognition for Request File ID: ${requestFileId}`);
     const accessToken = await this.getAccessToken();
     
     const options: StartRecognitionRequestOptions = {
@@ -200,6 +222,8 @@ export class SaluteSpeechService {
       request_file_id: requestFileId,
     };
 
+    console.log('[SBER_SERVICE] Recognition request body:', JSON.stringify(requestBody, null, 2));
+
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
@@ -214,12 +238,16 @@ export class SaluteSpeechService {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      console.error('[SBER_SERVICE] Failed to start recognition.', { status: response.status, body: errorBody });
       throw new Error(`Failed to start recognition: ${response.status} ${response.statusText} - ${errorBody}`);
     }
-    return response.json();
+    const jsonResponse = await response.json();
+    console.log(`[SBER_SERVICE] Recognition started successfully. Task ID: ${jsonResponse.result.id}`);
+    return jsonResponse;
   }
 
   async getRecognitionStatus(taskId: string): Promise<RecognitionStatusResponse> {
+    console.log(`[SBER_SERVICE] Getting recognition status for Task ID: ${taskId}`);
     const accessToken = await this.getAccessToken();
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
@@ -233,12 +261,16 @@ export class SaluteSpeechService {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      console.error(`[SBER_SERVICE] Failed to get recognition status for Task ID: ${taskId}.`, { status: response.status, body: errorBody });
       throw new Error(`Failed to get recognition status: ${response.status} ${response.statusText} - ${errorBody}`);
     }
-    return response.json();
+    const jsonResponse = await response.json();
+    console.log(`[SBER_SERVICE] Status for Task ID ${taskId} is: ${jsonResponse.result.status}`);
+    return jsonResponse;
   }
 
   async getRecognitionResult(responseFileId: string): Promise<SberRecognitionResult> {
+    console.log(`[SBER_SERVICE] Getting recognition result for Response File ID: ${responseFileId}`);
     const accessToken = await this.getAccessToken();
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
@@ -252,13 +284,18 @@ export class SaluteSpeechService {
 
     if (!response.ok) {
       const errorBody = await response.text();
+      console.error(`[SBER_SERVICE] Failed to get recognition result for Response File ID: ${responseFileId}.`, { status: response.status, body: errorBody });
       throw new Error(`Failed to get recognition result: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     // Sber API might return JSON with non-standard content-type, so parse as text then JSON
     const textBody = await response.text();
+    console.log(`[SBER_SERVICE] Successfully downloaded result data for Response File ID: ${responseFileId}. Data size: ${textBody.length}`);
     try {
-        return JSON.parse(textBody) as SberRecognitionResult;
+        const parsedResult = JSON.parse(textBody) as SberRecognitionResult;
+        console.log('[SBER_SERVICE] Result data parsed successfully.');
+        return parsedResult;
     } catch (e) {
+        console.error('[SBER_SERVICE] Failed to parse recognition result JSON.', { error: e, body: textBody });
         throw new Error(`Failed to parse recognition result JSON: ${e}. Received: ${textBody}`);
     }
   }
