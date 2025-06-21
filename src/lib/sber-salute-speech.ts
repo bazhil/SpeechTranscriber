@@ -18,6 +18,7 @@ interface StartRecognitionRequestOptions {
   audio_encoding: string;
   sample_rate?: number;
   hints?: any; 
+  language?: string;
   channels_count?: number;
   speaker_separation_options?: {
     enable: boolean;
@@ -192,7 +193,8 @@ export class SpeechService {
     sampleRate?: number, 
     channelsCount?: number, 
     enableSpeakerSeparation: boolean = true,
-    hints?: any
+    hints?: any,
+    language?: string // Add language parameter here
     ): Promise<StartRecognitionResponse> {
     console.log(`[SPEECH_SERVICE] Starting recognition for Request File ID: ${requestFileId}`);
     const accessToken = await this.getAccessToken();
@@ -205,6 +207,7 @@ export class SpeechService {
     if (sampleRate) options.sample_rate = sampleRate;
     if (channelsCount) options.channels_count = channelsCount;
     if (hints) options.hints = hints;
+ if (language) options.language = language; // Add language to options
 
     if (enableSpeakerSeparation) {
       options.speaker_separation_options = {
