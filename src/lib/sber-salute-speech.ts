@@ -194,7 +194,7 @@ export class SpeechService {
     channelsCount?: number, 
     enableSpeakerSeparation: boolean = true,
     hints?: any,
-    language?: string // Add language parameter here
+ language: 'Russian' | 'English' = 'Russian' // Add language parameter here
     ): Promise<StartRecognitionResponse> {
     console.log(`[SPEECH_SERVICE] Starting recognition for Request File ID: ${requestFileId}`);
     const accessToken = await this.getAccessToken();
@@ -207,7 +207,11 @@ export class SpeechService {
     if (sampleRate) options.sample_rate = sampleRate;
     if (channelsCount) options.channels_count = channelsCount;
     if (hints) options.hints = hints;
- if (language) options.language = language; // Add language to options
+ if (language === 'Russian') {
+ options.language = 'ru-RU';
+ } else if (language === 'English') {
+ options.language = 'en-US';
+ }
 
     if (enableSpeakerSeparation) {
       options.speaker_separation_options = {

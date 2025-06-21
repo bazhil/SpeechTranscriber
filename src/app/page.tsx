@@ -17,6 +17,7 @@ type TranscriptionStatus = 'NEW' | 'PROCESSING' | 'DONE' | 'ERROR' | 'IDLE';
 const AUDIO_ENCODINGS = [
   { value: 'MP3', label: 'MP3' },
   { value: 'WAV', label: 'WAV (Auto-detect PCM_S16LE parameters)' },
+ { value: 'WAV_AUTO', label: 'WAV (Auto-detect PCM_S16LE parameters)' },
   { value: 'PCM_S16LE', label: 'WAV / PCM S16LE (Requires Sample Rate & Channels)' },
   { value: 'OPUS', label: 'Opus' },
   { value: 'FLAC', label: 'FLAC' },
@@ -29,6 +30,7 @@ export default function TranscriberPage() {
   const [enableSpeakerSeparation, setEnableSpeakerSeparation] = React.useState<boolean>(true);
   const [sampleRate, setSampleRate] = React.useState<string>('');
   const [channelsCount, setChannelsCount] = React.useState<string>('');
+ const [language, setLanguage] = React.useState<string>('ru-RU'); // Default to Russian
   
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [progressMessage, setProgressMessage] = React.useState<string>('');
@@ -103,7 +105,7 @@ export default function TranscriberPage() {
     }
 
 
-    const response = await initiateTranscriptionAction(formData, encoding, enableSpeakerSeparation, sr, cc);
+    const response = await initiateTranscriptionAction(formData, encoding, enableSpeakerSeparation, sr, cc, language);
     setCurrentProgress(30);
 
     if (response.success && response.taskId) {
@@ -242,6 +244,20 @@ export default function TranscriberPage() {
               </Select>
             </div>
             <div className="flex items-center space-x-2 pt-8">
+ <div className="space-y-2">
+ <Label htmlFor="language" className="text-base font-medium">Language</Label>
+ <Select value={language} onValueChange={setLanguage} disabled={isLoading}>
+ <SelectTrigger id="language" className="w-full text-base">
+ <SelectValue placeholder="Select language" />
+ </SelectTrigger>
+ <SelectContent>
+ <SelectItem value="ru-RU" className="text-base">Russian</SelectItem>
+ <SelectItem value="en-US" className="text-base">English</SelectItem>
+ </SelectContent>
+ </Select>
+ </div>
+ </div>
+ <div className="flex items-center space-x-2 pt-8">
               <Checkbox 
                 id="speaker-separation" 
                 checked={enableSpeakerSeparation} 
