@@ -33,9 +33,9 @@ function getEnvVarAsInt(key: string, defaultValue?: number): number {
 
 
 export const speechServiceConfig: SpeechServiceConfig = {
-  authKey: getEnvVar('SPEECH_API_AUTH_KEY'),
-  speechTokenUrl: getEnvVar('SPEECH_API_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
-  speechBaseUrl: getEnvVar('SPEECH_API_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
+  authKey: getEnvVar('SPEECH_AUTH_KEY'),
+  speechTokenUrl: getEnvVar('SPEECH_TOKEN_URL', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'),
+  speechBaseUrl: getEnvVar('SPEECH_BASE_URL', 'https://smartspeech.sber.ru/rest/v1'),
   scope: 'SALUTE_SPEECH_PERS',
   retryAttempts: getEnvVarAsInt('RETRY_ATTEMPTS', 5),
   retryTimeout: getEnvVarAsInt('RETRY_TIMEOUT', 2) * 1000, 
@@ -43,3 +43,4 @@ export const speechServiceConfig: SpeechServiceConfig = {
   recognitionPollingDelay: getEnvVarAsInt('RECOGNITION_POLLING_DELAY', 1000),
   retryStatuses: [429, 500, 502, 503, 504],
 };
+

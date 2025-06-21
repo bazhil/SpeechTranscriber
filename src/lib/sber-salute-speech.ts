@@ -71,17 +71,15 @@ async function delay(ms: number): Promise<void> {
 }
 
 export class SpeechService {
-  constructor() {
-    // Temporarily ignore SSL certificate errors in development
-    if (process.env.NODE_ENV === 'development') {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    }
-    this.sessionId = uuidv4();
   private token: ServiceToken | null = null;
   private sessionId: string;
   private config: SpeechServiceConfig;
 
   constructor() {
+    // Temporarily ignore SSL certificate errors in development
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
     this.sessionId = uuidv4();
     this.config = speechServiceConfig;
   }
@@ -211,6 +209,8 @@ export class SpeechService {
     if (enableSpeakerSeparation) {
       options.speaker_separation_options = {
         enable: true,
+        enable_only_main_speaker: false,
+        count: 2,
       };
     }
 
