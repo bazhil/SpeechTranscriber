@@ -13,18 +13,30 @@ export function formatResultToText(result: RecognitionResult, separateSpeakers: 
   }
 
   let fullText = "";
+  let lastLine = ""; // To track the previous line for duplicate check
   result.forEach((segment: RecognitionResultSegment, index: number) => {
-    if (segment.results && Array.isArray(segment.results)) {
-      segment.results.forEach((transcription, subIndex) => {
-        let line = "";
-        // Assuming speaker_tag is at the segment level, apply it once per segment
-        if (separateSpeakers && segment.speaker_info && segment.speaker_info.speaker_id !== undefined) {
-           line += `Speaker ${segment.speaker_info.speaker_id}: `;
-        }
-        line += transcription.normalized_text || transcription.text || "";
-        fullText += line + "\n";
-      });
-    } else { console.warn(`[FORMATTER] Segment ${index + 1} has no 'results' array or it's not an array.`); }
+    // Skip segments with speaker_id -1 and only include speakers 1 and 2
+    if (segment.speaker_info && (segment.speaker_info.speaker_id === 1 || segment.speaker_info.speaker_id === 2)) {
+      if (segment.results && Array.isArray(segment.results)) {
+        segment.results.forEach((transcription, subIndex) => {
+          let line = "";
+          // Add speaker label if separateSpeakers is true
+          if (separateSpeakers) {
+             line += `Speaker ${segment.speaker_info.speaker_id}: `;
+          }
+          const text = transcription.normalized_text || transcription.text || "";
+          line += text;
+
+          // Prevent adding fully duplicated replicas consecutively
+          if (line.trim() !== lastLine.trim()) {
+            fullText += line + "\n";
+            lastLine = line;
+          }
+        });
+      } else { console.warn(`[FORMATTER] Segment ${index + 1} has no 'results' array or it's not an array.`); }
+    } else if (segment.speaker_info && segment.speaker_info.speaker_id !== undefined) {
+       console.log(`[FORMATTER] Skipping segment ${index + 1} with speaker_id: ${segment.speaker_info.speaker_id}`);
+    }
     console.log(`[FORMATTER] Processed segment ${index + 1}/${result.length}`);
   });
   
