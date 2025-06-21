@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { saluteSpeechConfig, type SaluteSpeechConfig } from '@/config/settings';
 
@@ -212,8 +213,6 @@ export class SaluteSpeechService {
     if (enableSpeakerSeparation) {
       options.speaker_separation_options = {
         enable: true,
-        // enable_only_main_speaker: false, // Default values from Python example
-        // count: 2, 
       };
     }
 
