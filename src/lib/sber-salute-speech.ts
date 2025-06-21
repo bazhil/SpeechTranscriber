@@ -71,6 +71,12 @@ async function delay(ms: number): Promise<void> {
 }
 
 export class SpeechService {
+  constructor() {
+    // Temporarily ignore SSL certificate errors in development
+    if (process.env.NODE_ENV === 'development') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
+    this.sessionId = uuidv4();
   private token: ServiceToken | null = null;
   private sessionId: string;
   private config: SpeechServiceConfig;
@@ -78,7 +84,6 @@ export class SpeechService {
   constructor() {
     this.sessionId = uuidv4();
     this.config = speechServiceConfig;
-    console.log(`[SPEECH_SERVICE] New instance created with Session ID: ${this.sessionId}`);
   }
 
   private async fetchWithRetry(url: string, options: RequestInit, attempt = 1): Promise<Response> {
