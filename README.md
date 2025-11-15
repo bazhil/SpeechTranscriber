@@ -19,7 +19,7 @@ To run this project locally, you will need Docker and Docker Compose installed.
 
 1.  **Clone the repository:**
 ```bash
-git clonehttps://github.com/bazhil/SpeechTranscriber.git
+git clone https://github.com/bazhil/SpeechTranscriber.git
 ```
 
 2. **Fill .env:**
