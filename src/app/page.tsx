@@ -201,7 +201,7 @@ export default function TranscriberPage() {
           <h1 className="text-4xl font-headline font-bold text-primary">Speech Transcriber</h1>
         </div>
         <p className="text-lg text-muted-foreground">
-          Upload your audio/video files and get high-quality transcriptions powered by our Speech API.
+          Upload your audio/video files and get high-quality transcriptions.
         </p>
       </header>
 
